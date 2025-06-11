@@ -1113,6 +1113,13 @@ button {
     flex: 1;
     overflow-y: auto;
     padding: 1.25rem 0;
+    /* ADICIONE ESTAS LINHAS: */
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    height: 100%;
+    min-height: 0;
 }
 
 .sidebar-nav ul {
@@ -2773,7 +2780,10 @@ tr.summary {
     
     .sidebar.active {
         margin-left: 0;
-    }
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
+}
     
     .main-content {
         width: 100% !important;
@@ -4267,4 +4277,171 @@ body {
 .pwa-mode .menu-toggle {
     top: calc(10px + env(safe-area-inset-top));
     left: calc(10px + env(safe-area-inset-left));
+}
+/* ===== CORREÇÕES ESPECÍFICAS MOBILE ===== */
+
+/* Melhorar sidebar em dispositivos móveis */
+@media (max-width: 992px) {
+    .sidebar {
+        position: fixed !important;
+        left: 0 !important;
+        top: 0 !important;
+        height: 100vh !important;
+        width: var(--sidebar-width) !important;
+        transform: translateX(-100%) !important;
+        transition: transform 0.3s ease !important;
+        z-index: 1001 !important;
+        overflow: hidden !important;
+    }
+    
+    .sidebar.active {
+        transform: translateX(0) !important;
+    }
+    
+    .sidebar-nav {
+        height: calc(100vh - 200px) !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding: 1rem 0 !important;
+        scroll-behavior: smooth !important;
+    }
+    
+    .sidebar-nav::-webkit-scrollbar {
+        width: 4px !important;
+    }
+    
+    .sidebar-nav::-webkit-scrollbar-track {
+        background: transparent !important;
+    }
+    
+    .sidebar-nav::-webkit-scrollbar-thumb {
+        background: rgba(0,0,0,0.2) !important;
+        border-radius: 4px !important;
+    }
+    
+    /* Overlay para fechar menu */
+    .sidebar.active::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: var(--sidebar-width);
+        width: calc(100vw - var(--sidebar-width));
+        height: 100vh;
+        background: rgba(0,0,0,0.5);
+        z-index: -1;
+    }
+    
+    /* Melhorar botões na sidebar mobile */
+    .sidebar-nav li {
+        padding: 1rem 1.25rem !important;
+        font-size: 0.95rem !important;
+        min-height: 48px !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+    
+    .sidebar-nav li i {
+        margin-right: 1rem !important;
+        font-size: 1.2rem !important;
+        width: 20px !important;
+        text-align: center !important;
+    }
+}
+
+/* Corrigir botão de menu mobile */
+.menu-toggle {
+    display: none;
+    position: fixed !important;
+    top: 15px !important;
+    left: 15px !important;
+    z-index: 1002 !important;
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 12px !important;
+    background: var(--primary) !important;
+    color: white !important;
+    border: none !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3) !important;
+    transition: all 0.3s ease !important;
+}
+
+@media (max-width: 992px) {
+    .menu-toggle {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    .menu-toggle:hover {
+        transform: scale(1.05) !important;
+        box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4) !important;
+    }
+}
+
+/* Melhorar área de toque em elementos pequenos */
+@media (max-width: 768px) {
+    .btn-sm {
+        padding: 0.6rem 0.8rem !important;
+        min-height: 44px !important;
+        min-width: 44px !important;
+    }
+    
+    .action-btn {
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 50% !important;
+    }
+    
+    /* Melhorar tabelas em mobile */
+    .table-responsive {
+        border-radius: 8px !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+    }
+    
+    /* Indicador de scroll horizontal */
+    .table-responsive::after {
+        content: '👈 Deslize para ver mais';
+        position: sticky;
+        right: 0;
+        background: var(--primary);
+        color: white;
+        padding: 0.5rem;
+        font-size: 0.8rem;
+        border-radius: 4px;
+        margin: 0.5rem;
+        display: block;
+        text-align: center;
+        opacity: 0.8;
+    }
+}
+
+/* Corrigir PWA install button */
+.pwa-install-btn {
+    position: fixed !important;
+    bottom: 20px !important;
+    right: 20px !important;
+    z-index: 9999 !important;
+    border-radius: 25px !important;
+    padding: 10px 16px !important;
+    font-size: 14px !important;
+    background: linear-gradient(135deg, #4361ee, #764ba2) !important;
+    color: white !important;
+    border: none !important;
+    box-shadow: 0 4px 15px rgba(67, 97, 238, 0.4) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    font-family: inherit !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+}
+
+@media (max-width: 768px) {
+    .pwa-install-btn {
+        bottom: 80px !important;
+        right: 15px !important;
+        font-size: 13px !important;
+        padding: 8px 14px !important;
+    }
 }
