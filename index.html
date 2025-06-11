@@ -5981,13 +5981,51 @@ document.addEventListener('DOMContentLoaded', function() {
         const sidebar = document.getElementById('sidebar');
         const menuToggle = document.querySelector('.menu-toggle');
         
+        // Só fechar se clicou fora E não está scrollando a sidebar
         if (sidebar && menuToggle && 
             !sidebar.contains(event.target) && 
             !menuToggle.contains(event.target) &&
-            sidebar.classList.contains('active')) {
-            sidebar.classList.remove('active');
+            sidebar.classList.contains('active') &&
+            window.innerWidth <= 992) {
+            
+            // Verificar se não foi um evento de scroll
+            setTimeout(() => {
+                if (!sidebar.matches(':hover')) {
+                    sidebar.classList.remove('active');
+                }
+            }, 100);
         }
     });
+    
+    // Melhorar touch events na sidebar
+    let touchStartY = 0;
+    let isScrolling = false;
+    
+    document.addEventListener('touchstart', function(e) {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar && sidebar.contains(e.target)) {
+            touchStartY = e.touches[0].clientY;
+            isScrolling = false;
+        }
+    }, { passive: true });
+    
+    document.addEventListener('touchmove', function(e) {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar && sidebar.contains(e.target)) {
+            const touchY = e.touches[0].clientY;
+            const diff = Math.abs(touchY - touchStartY);
+            
+            if (diff > 10) {
+                isScrolling = true;
+            }
+        }
+    }, { passive: true });
+    
+    document.addEventListener('touchend', function(e) {
+        setTimeout(() => {
+            isScrolling = false;
+        }, 300);
+    }, { passive: true });
     
     // Atualizar layout ao redimensionar a janela
     window.addEventListener('resize', function() {
@@ -6377,8 +6415,36 @@ function updateTransacoes() {
             e.preventDefault();
             deferredPrompt = e;
             
-            // Mostrar botão de instalação customizado
-            showInstallButton();
+            // Esperar um pouco antes de mostrar o botão
+            setTimeout(() => {
+                showInstallButton();
+            }, 2000);
+        });
+
+        // Para dispositivos iOS (que não suportam beforeinstallprompt)
+        function checkIOSInstallation() {
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const isInStandaloneMode = window.navigator.standalone === true;
+            const hasBeenPrompted = localStorage.getItem('iosInstallPrompted');
+            
+            if (isIOS && !isInStandaloneMode && !hasBeenPrompted) {
+                setTimeout(() => {
+                    showIOSInstallInstructions();
+                }, 3000);
+            }
+        }
+
+        // Mostrar instruções para iOS
+        function showIOSInstallInstructions() {
+            if (typeof showToast === 'function') {
+                showToast('Para instalar: toque em Compartilhar → Adicionar à Tela Inicial', 'info');
+                localStorage.setItem('iosInstallPrompted', 'true');
+            }
+        }
+
+        // Verificar se é iOS após o carregamento
+        window.addEventListener('load', () => {
+            setTimeout(checkIOSInstallation, 1000);
         });
 
         // Função para mostrar botão de instalação
@@ -6395,24 +6461,32 @@ function updateTransacoes() {
             
             // Adicionar estilos inline para garantir aparência
             installButton.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                background: linear-gradient(135deg, #4361ee, #764ba2);
-                color: white;
-                border: none;
-                padding: 12px 20px;
-                border-radius: 50px;
-                font-size: 14px;
-                font-weight: 600;
-                cursor: pointer;
-                box-shadow: 0 4px 20px rgba(67, 97, 238, 0.3);
-                z-index: 9999;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                transition: all 0.3s ease;
-                font-family: inherit;
+                position: fixed !important;
+                bottom: 90px !important;
+                right: 20px !important;
+                background: linear-gradient(135deg, #4361ee, #764ba2) !important;
+                color: white !important;
+                border: none !important;
+                padding: 12px 18px !important;
+                border-radius: 25px !important;
+                font-size: 13px !important;
+                font-weight: 600 !important;
+                cursor: pointer !important;
+                box-shadow: 0 4px 15px rgba(67, 97, 238, 0.4) !important;
+                z-index: 9999 !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 6px !important;
+                transition: all 0.3s ease !important;
+                transform: scale(0) !important;
+                opacity: 0 !important;
+                font-family: inherit !important;
+                min-width: auto !important;
+                width: auto !important;
+                height: auto !important;
+                line-height: 1.2 !important;
+                text-decoration: none !important;
+                white-space: nowrap !important;
             `;
             
             // Efeitos hover
